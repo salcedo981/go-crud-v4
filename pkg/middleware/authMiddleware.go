@@ -26,7 +26,7 @@ func AuthMiddleware(c fiber.Ctx) error {
 
 	// Parse and validate JWT
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte(utils_v1.GetEnv("JWT_SECRET")), nil
+		return []byte(utils_v1.GetEnv("SECRET_KEY")), nil
 	})
 
 	if err != nil || !token.Valid {

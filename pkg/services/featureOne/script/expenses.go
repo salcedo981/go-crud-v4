@@ -13,10 +13,11 @@ import (
 // ============================================
 
 // CreateExpense inserts a new expense into the database
-func CreateExpense(userID int, req *mdlFeatureOne.CreateExpenseRequest) (*mdlFeatureOne.ExpenseEntity, error) {
-	var expense mdlFeatureOne.ExpenseEntity
+func CreateExpense(userID int, req *mdlFeatureOne.CreateExpenseRequest) (*mdlFeatureOne.ExpenseResponse, error) {
+	var expense mdlFeatureOne.ExpenseResponse
+	var jsonResult string
 
-	err := config.DBConnList[0].Raw(
+	err := config.DBConnList[0].Debug().Raw(
 		`SELECT * FROM create_expense($1, $2, $3, $4, $5, $6, $7)`,
 		userID,
 		req.Title,
@@ -25,10 +26,15 @@ func CreateExpense(userID int, req *mdlFeatureOne.CreateExpenseRequest) (*mdlFea
 		req.Date,
 		req.Notes,
 		req.ImageURL,
-	).Scan(&expense).Error
+	).Scan(&jsonResult).Error
 
 	if err != nil {
 		log.Printf("[CreateExpense] Error for user %d: %v", userID, err)
+		return nil, err
+	}
+
+	if err := json.Unmarshal([]byte(jsonResult), &expense); err != nil {
+		log.Printf("[CreateExpense] JSON parse error: %v", err)
 		return nil, err
 	}
 
@@ -89,17 +95,23 @@ func ExpenseExists(userID, expenseID int) bool {
 }
 
 // GetExpenseByID retrieves a single expense by ID
-func GetExpenseByID(userID, expenseID int) (*mdlFeatureOne.ExpenseEntity, error) {
-	var expense mdlFeatureOne.ExpenseEntity
+func GetExpenseByID(userID, expenseID int) (*mdlFeatureOne.ExpenseResponse, error) {
+	var expense mdlFeatureOne.ExpenseResponse
+	var jsonResult string
 
 	err := config.DBConnList[0].Raw(
-		`SELECT * FROM get_expense_by_id($1, $2)`,
+		`SELECT get_expense_by_id($1, $2)`,
 		userID,
 		expenseID,
-	).Scan(&expense).Error
+	).Scan(&jsonResult).Error
 
 	if err != nil {
 		log.Printf("[GetExpenseByID] Error for user %d, expense %d: %v", userID, expenseID, err)
+		return nil, err
+	}
+
+	if err := json.Unmarshal([]byte(jsonResult), &expense); err != nil {
+		log.Printf("[GetExpenseByID] JSON parse error: %v", err)
 		return nil, err
 	}
 
@@ -109,8 +121,9 @@ func GetExpenseByID(userID, expenseID int) (*mdlFeatureOne.ExpenseEntity, error)
 }
 
 // UpdateExpense updates an existing expense
-func UpdateExpense(userID, expenseID int, req *mdlFeatureOne.UpdateExpenseRequest) (*mdlFeatureOne.ExpenseEntity, error) {
-	var expense mdlFeatureOne.ExpenseEntity
+func UpdateExpense(userID, expenseID int, req *mdlFeatureOne.UpdateExpenseRequest) (*mdlFeatureOne.ExpenseResponse, error) {
+	var expense mdlFeatureOne.ExpenseResponse
+	var jsonResult string
 
 	err := config.DBConnList[0].Raw(
 		`SELECT * FROM update_expense($1, $2, $3, $4, $5, $6, $7, $8)`,
@@ -122,10 +135,15 @@ func UpdateExpense(userID, expenseID int, req *mdlFeatureOne.UpdateExpenseReques
 		req.Date,
 		req.Notes,
 		req.ImageURL,
-	).Scan(&expense).Error
+	).Scan(&jsonResult).Error
 
 	if err != nil {
 		log.Printf("[UpdateExpense] Error for user %d, expense %d: %v", userID, expenseID, err)
+		return nil, err
+	}
+
+	if err := json.Unmarshal([]byte(jsonResult), &expense); err != nil {
+		log.Printf("[UpdateExpense] JSON parse error: %v", err)
 		return nil, err
 	}
 

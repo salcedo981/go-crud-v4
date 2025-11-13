@@ -49,11 +49,8 @@ func CreateExpense(c fiber.Ctx) error {
 			"Failed to create expense", err, http.StatusInternalServerError)
 	}
 
-	// Map to response
-	response := mapExpenseEntityToResponse(expense)
-
 	return v1.JSONResponseWithData(c, respcode.SUC_CODE_201,
-		"Expense created successfully", response, http.StatusCreated)
+		"Expense created successfully", expense, http.StatusCreated)
 }
 
 // CreateExpenseV2 creates expense with file upload support
@@ -106,11 +103,8 @@ func CreateExpenseV2(c fiber.Ctx) error {
 			"Failed to create expense", err, http.StatusInternalServerError)
 	}
 
-	// Map to response
-	response := mapExpenseEntityToResponse(expense)
-
 	return v1.JSONResponseWithData(c, respcode.SUC_CODE_201,
-		"Expense created successfully", response, http.StatusCreated)
+		"Expense created successfully", expense, http.StatusCreated)
 }
 
 // GetExpenses retrieves expenses with filters
@@ -177,11 +171,8 @@ func GetExpense(c fiber.Ctx) error {
 			"Failed to retrieve expense", err, http.StatusInternalServerError)
 	}
 
-	// Map to response
-	response := mapExpenseEntityToResponse(expense)
-
 	return v1.JSONResponseWithData(c, respcode.SUC_CODE_200,
-		"Expense retrieved successfully", response, http.StatusOK)
+		"Expense retrieved successfully", expense, http.StatusOK)
 }
 
 // UpdateExpense updates an existing expense
@@ -238,11 +229,8 @@ func UpdateExpense(c fiber.Ctx) error {
 			"Failed to update expense", err, http.StatusInternalServerError)
 	}
 
-	// Map to response
-	response := mapExpenseEntityToResponse(expense)
-
 	return v1.JSONResponseWithData(c, respcode.SUC_CODE_200,
-		"Expense updated successfully", response, http.StatusOK)
+		"Expense updated successfully", expense, http.StatusOK)
 }
 
 // DeleteExpense soft deletes an expense
@@ -291,31 +279,6 @@ func DeleteExpense(c fiber.Ctx) error {
 // ============================================
 // HELPER FUNCTIONS
 // ============================================
-
-// mapExpenseEntityToResponse converts entity to response
-func mapExpenseEntityToResponse(entity *mdlFeatureOne.ExpenseEntity) *mdlFeatureOne.ExpenseResponse {
-	response := &mdlFeatureOne.ExpenseResponse{
-		ID:        entity.ID,
-		Title:     entity.Title,
-		Amount:    entity.Amount,
-		Date:      entity.Date,
-		Notes:     entity.Notes,
-		ImageURL:  entity.ImageURL,
-		CreatedAt: entity.CreatedAt,
-		UpdatedAt: entity.UpdatedAt,
-	}
-
-	// Add category if exists
-	if entity.CategoryID != nil && entity.CategoryName != nil {
-		response.Category = &mdlFeatureOne.CategoryInfo{
-			ID:          *entity.CategoryID,
-			Name:        *entity.CategoryName,
-			Description: *entity.CategoryDescription,
-		}
-	}
-
-	return response
-}
 
 // getQueryString gets string query parameter
 func getQueryString(c fiber.Ctx, key string) *string {

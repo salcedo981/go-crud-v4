@@ -12,22 +12,24 @@ import (
 // CATEGORY OPERATIONS
 // ============================================
 
-// CreateCategory creates a new expense category
-func CreateCategory(req *mdlFeatureOne.CreateCategoryRequest) (*mdlFeatureOne.CategoryEntity, error) {
-	var category mdlFeatureOne.CategoryEntity
+func CreateCategory(req *mdlFeatureOne.CreateCategoryRequest) (*mdlFeatureOne.CategoryResponse, error) {
+	db := config.DBConnList[0]
 
-	err := config.DBConnList[0].Raw(
-		`SELECT * FROM create_category($1, $2)`,
-		req.Name,
-		req.Description,
-	).Scan(&category).Error
+	var category mdlFeatureOne.CategoryResponse
+
+	// Insert the new category and return it
+	err := db.Raw(`
+		INSERT INTO expense_categories (name, description)
+		VALUES (?, ?)
+		RETURNING id, name, description, created_at
+	`, req.Name, req.Description).Scan(&category).Error
 
 	if err != nil {
 		log.Printf("[CreateCategory] Error creating category '%s': %v", req.Name, err)
 		return nil, err
 	}
 
-	log.Printf("[CreateCategory] Success - CategoryID: %d, Name: %s", category.ID, category.Name)
+	log.Printf("[CreateCategory] Success - ID: %d, Name: %s", category.ID, category.Name)
 	return &category, nil
 }
 

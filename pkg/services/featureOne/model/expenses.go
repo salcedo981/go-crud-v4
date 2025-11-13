@@ -67,26 +67,6 @@ type ExpenseListResponse struct {
 }
 
 // ============================================
-// EXPENSE ENTITY STRUCTS (DB)
-// ============================================
-
-type ExpenseEntity struct {
-	ID                  int     `db:"id"`
-	UserID              int     `db:"user_id"`
-	Title               string  `db:"title"`
-	Amount              float64 `db:"amount"`
-	CategoryID          *int    `db:"category_id"`
-	CategoryName        *string `db:"category_name"`
-	CategoryDescription *string `db:"category_description"`
-	Date                string  `db:"date"`
-	Notes               *string `db:"notes"`
-	ImageURL            *string `db:"image_url"`
-	CreatedAt           string  `db:"created_at"`
-	UpdatedAt           string  `db:"updated_at"`
-	DeletedAt           *string `db:"deleted_at"`
-}
-
-// ============================================
 // HELPER STRUCTS
 // ============================================
 

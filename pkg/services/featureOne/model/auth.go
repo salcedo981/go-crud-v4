@@ -1,7 +1,5 @@
 package mdlFeatureOne
 
-import "time"
-
 // ============================================
 // AUTH REQUEST STRUCTS
 // ============================================
@@ -41,11 +39,11 @@ type ResetPasswordRequest struct {
 // ============================================
 
 type UserResponse struct {
-	ID        int       `json:"id"`
-	Email     string    `json:"email"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID        int    `json:"id"`
+	Email     string `json:"email"`
+	Name      string `json:"name"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
 }
 
 type LoginResponse struct {
@@ -62,22 +60,21 @@ type RegisterResponse struct {
 // ============================================
 
 type UserEntity struct {
-	ID        int        `db:"id"`
-	Email     string     `db:"email"`
-	Password  string     `db:"password"`
-	Name      string     `db:"name"`
-	CreatedAt time.Time  `db:"created_at"`
-	UpdatedAt time.Time  `db:"updated_at"`
-	DeletedAt *time.Time `db:"deleted_at"`
+	ID        int    `json:"id"`
+	Email     string `json:"email"`
+	Name      string `json:"name"`
+	Password  string `json:"password"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
 }
 
 type PasswordResetTokenEntity struct {
-	ID        int        `db:"id"`
-	UserID    int        `db:"user_id"`
-	TokenHash string     `db:"token_hash"`
-	ExpiresAt time.Time  `db:"expires_at"`
-	UsedAt    *time.Time `db:"used_at"`
-	CreatedAt time.Time  `db:"created_at"`
+	ID        int     `db:"id"`
+	UserID    int     `db:"user_id"`
+	TokenHash string  `db:"token_hash"`
+	ExpiresAt string  `db:"expires_at"`
+	UsedAt    *string `db:"used_at"`
+	CreatedAt string  `db:"created_at"`
 }
 
 // ============================================

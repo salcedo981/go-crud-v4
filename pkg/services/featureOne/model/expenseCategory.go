@@ -30,15 +30,3 @@ type CategoryListResponse struct {
 	Categories []CategoryResponse `json:"categories"`
 	Pagination PaginationResponse `json:"pagination"`
 }
-
-// ============================================
-// CATEGORY ENTITY STRUCTS (DB)
-// ============================================
-
-type CategoryEntity struct {
-	ID          int     `db:"id"`
-	Name        string  `db:"name"`
-	Description *string `db:"description"`
-	CreatedAt   string  `db:"created_at"`
-	UpdatedAt   string  `db:"updated_at"`
-}

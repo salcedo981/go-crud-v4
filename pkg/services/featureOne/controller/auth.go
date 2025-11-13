@@ -77,19 +77,8 @@ func Register(c fiber.Ctx) error {
 			"Registration failed", err, http.StatusInternalServerError)
 	}
 
-	// Map to response
-	response := mdlFeatureOne.RegisterResponse{
-		User: mdlFeatureOne.UserResponse{
-			ID:        user.ID,
-			Email:     user.Email,
-			Name:      user.Name,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
-		},
-	}
-
 	return v1.JSONResponseWithData(c, respcode.SUC_CODE_201,
-		"User registered successfully", response, http.StatusCreated)
+		"User registered successfully", user, http.StatusCreated)
 }
 
 // Login authenticates user and returns JWT token
@@ -137,7 +126,7 @@ func Login(c fiber.Ctx) error {
 	}
 
 	token, err := utils_v1.GenerateJWTSignedString(
-		[]byte(utils_v1.GetEnv("JWT_SECRET")),
+		[]byte(utils_v1.GetEnv("SECRET_KEY")),
 		24, // 24 hours
 		claims,
 	)
