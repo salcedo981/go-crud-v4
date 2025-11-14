@@ -64,7 +64,8 @@ func APIRoute(app *fiber.App) {
 
 	// Basic CRUD
 	expenseGroup.Post("/", ctrFeatureOne.CreateExpense)
-	expenseGroup.Post("/v2", ctrFeatureOne.CreateExpenseV2) // With file upload
+	expenseGroup.Post("/v2", ctrFeatureOne.CreateExpenseV2)                     // With file upload
+	expenseGroup.Post("/cloudinary", ctrFeatureOne.CreateExpenseWithCloudinary) // With cloudinary file upload
 	expenseGroup.Get("/", ctrFeatureOne.GetExpenses)
 	expenseGroup.Get("/:id", ctrFeatureOne.GetExpense)
 	expenseGroup.Put("/:id", ctrFeatureOne.UpdateExpense)

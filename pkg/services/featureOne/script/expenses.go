@@ -155,19 +155,25 @@ func UpdateExpense(userID, expenseID int, req *mdlFeatureOne.UpdateExpenseReques
 // DeleteExpense soft deletes an expense
 func DeleteExpense(userID, expenseID int) (*mdlFeatureOne.DeleteExpenseResult, error) {
 	var result mdlFeatureOne.DeleteExpenseResult
+	var jsonResult string
 
-	err := config.DBConnList[0].Raw(
-		`SELECT * FROM delete_expense($1, $2)`,
+	err := config.DBConnList[0].Debug().Raw(
+		`SELECT delete_expense($1, $2)`,
 		userID,
 		expenseID,
-	).Scan(&result).Error
+	).Scan(&jsonResult).Error
 
 	if err != nil {
 		log.Printf("[DeleteExpense] Error for user %d, expense %d: %v", userID, expenseID, err)
 		return nil, err
 	}
 
-	if !result.Deleted {
+	if err := json.Unmarshal([]byte(jsonResult), &result); err != nil {
+		log.Printf("[CreateExpense] JSON parse error: %v", err)
+		return nil, err
+	}
+
+	if !result.IsDeleted {
 		log.Printf("[DeleteExpense] Expense not found - UserID: %d, ExpenseID: %d", userID, expenseID)
 		return &result, nil
 	}

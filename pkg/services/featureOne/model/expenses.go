@@ -71,6 +71,6 @@ type ExpenseListResponse struct {
 // ============================================
 
 type DeleteExpenseResult struct {
-	Deleted  bool    `db:"deleted"`
-	ImageURL *string `db:"image_url"`
+	IsDeleted bool    `json:"isDeleted"`
+	ImageURL  *string `json:"imageUrl"`
 }

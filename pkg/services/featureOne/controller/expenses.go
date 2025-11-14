@@ -12,6 +12,7 @@ import (
 	utils_v1 "github.com/FDSAP-Git-Org/hephaestus/utils/v1"
 	"github.com/gofiber/fiber/v3"
 
+	"go_template_v3/pkg/config"
 	"go_template_v3/pkg/global/utils"
 	hlpFeatureOne "go_template_v3/pkg/services/featureOne/helper"
 	mdlFeatureOne "go_template_v3/pkg/services/featureOne/model"
@@ -94,6 +95,58 @@ func CreateExpenseV2(c fiber.Ctx) error {
 
 		fullURL := utils_v1.GetEnv("BASE_URL") + uploadedPath
 		req.ImageURL = &fullURL
+	}
+
+	// Create expense
+	expense, err := scpFeatureOne.CreateExpense(userID, &req)
+	if err != nil {
+		return v1.JSONResponseWithError(c, respcode.ERR_CODE_500,
+			"Failed to create expense", err, http.StatusInternalServerError)
+	}
+
+	return v1.JSONResponseWithData(c, respcode.SUC_CODE_201,
+		"Expense created successfully", expense, http.StatusCreated)
+}
+
+func CreateExpenseWithCloudinary(c fiber.Ctx) error {
+	userID := utils.GetUserId(c)
+	if userID == 0 {
+		return v1.JSONResponseWithError(c, respcode.ERR_CODE_401,
+			"Unauthorized", nil, http.StatusUnauthorized)
+	}
+
+	// Parse multipart form
+	form, err := c.MultipartForm()
+	if err != nil {
+		return v1.JSONResponseWithError(c, respcode.ERR_CODE_400,
+			"Invalid form data", err, http.StatusBadRequest)
+	}
+
+	// Bind form data
+	var req mdlFeatureOne.CreateExpenseRequest
+	if err := c.Bind().Body(&req); err != nil {
+		return v1.JSONResponseWithError(c, respcode.ERR_CODE_400,
+			"Invalid request body", err, http.StatusBadRequest)
+	}
+
+	// Validate
+	if err := hlpFeatureOne.ValidateCreateExpense(&req); err != nil {
+		return v1.JSONResponseWithError(c, respcode.ERR_CODE_400,
+			err.Error(), nil, http.StatusBadRequest)
+	}
+
+	// Handle file upload
+	if files, ok := form.File["image"]; ok && len(files) > 0 {
+		fileHeader := files[0]
+		cnf := config.LoadCloudinaryConfig()
+
+		uploadedPath, err := config.UploadToCloudinary(fileHeader, cnf)
+		if err != nil {
+			return v1.JSONResponseWithError(c, respcode.ERR_CODE_400,
+				"Failed to upload image", err, http.StatusBadRequest)
+		}
+
+		req.ImageURL = &uploadedPath
 	}
 
 	// Create expense
@@ -260,7 +313,7 @@ func DeleteExpense(c fiber.Ctx) error {
 			"Failed to delete expense", err, http.StatusInternalServerError)
 	}
 
-	if !result.Deleted {
+	if !result.IsDeleted {
 		return v1.JSONResponseWithError(c, respcode.ERR_CODE_500,
 			"Failed to delete expense", nil, http.StatusInternalServerError)
 	}
