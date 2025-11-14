@@ -70,6 +70,7 @@ func APIRoute(app *fiber.App) {
 	expenseGroup.Get("/:id", ctrFeatureOne.GetExpense)
 	expenseGroup.Put("/:id", ctrFeatureOne.UpdateExpense)
 	expenseGroup.Delete("/:id", ctrFeatureOne.DeleteExpense)
+	expenseGroup.Delete("/cloudinary/:id", ctrFeatureOne.DeleteExpenseWithCloudinary)
 
 	// ============================================
 	// BATCH JOB ROUTES (PROTECTED)

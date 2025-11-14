@@ -329,6 +329,50 @@ func DeleteExpense(c fiber.Ctx) error {
 		"Expense deleted successfully", nil, http.StatusOK)
 }
 
+func DeleteExpenseWithCloudinary(c fiber.Ctx) error {
+	userID := utils.GetUserId(c)
+	if userID == 0 {
+		return v1.JSONResponseWithError(c, respcode.ERR_CODE_401,
+			"Unauthorized", nil, http.StatusUnauthorized)
+	}
+
+	expenseID, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return v1.JSONResponseWithError(c, respcode.ERR_CODE_400,
+			"Invalid expense ID", err, http.StatusBadRequest)
+	}
+
+	if !scpFeatureOne.ExpenseExists(userID, expenseID) {
+		return v1.JSONResponseWithError(c, respcode.ERR_CODE_404,
+			"Expense not found", nil, http.StatusNotFound)
+	}
+
+	result, err := scpFeatureOne.DeleteExpense(userID, expenseID)
+	if err != nil {
+		return v1.JSONResponseWithError(c, respcode.ERR_CODE_500,
+			"Failed to delete expense", err, http.StatusInternalServerError)
+	}
+
+	if !result.IsDeleted {
+		return v1.JSONResponseWithError(c, respcode.ERR_CODE_500,
+			"Failed to delete expense", nil, http.StatusInternalServerError)
+	}
+
+	// Delete Cloudinary image if exists
+	if result.ImageURL != nil && *result.ImageURL != "" {
+		publicID := config.CloudinaryPublicIDFromURL(*result.ImageURL)
+		if publicID != "" {
+			cloudCfg := config.LoadCloudinaryConfig()
+			if err := config.DeleteCloudinaryImage(publicID, cloudCfg); err != nil {
+				fmt.Printf("Warning: Failed to delete Cloudinary image %s: %v\n", *result.ImageURL, err)
+			}
+		}
+	}
+
+	return v1.JSONResponseWithData(c, respcode.SUC_CODE_200,
+		"Expense deleted successfully", nil, http.StatusOK)
+}
+
 // ============================================
 // HELPER FUNCTIONS
 // ============================================

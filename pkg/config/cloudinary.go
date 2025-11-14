@@ -3,6 +3,8 @@ package config
 import (
 	"context"
 	"mime/multipart"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/cloudinary/cloudinary-go/v2"
@@ -53,4 +55,44 @@ func UploadToCloudinary(fileHeader *multipart.FileHeader, config CloudinaryConfi
 	}
 
 	return uploadResult.SecureURL, nil
+}
+
+// Delete an image from Cloudinary using PublicID
+func DeleteCloudinaryImage(publicID string, config CloudinaryConfig) error {
+	cld, err := cloudinary.NewFromParams(config.CloudName, config.APIKey, config.APISecret)
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	_, err = cld.Upload.Destroy(ctx, uploader.DestroyParams{
+		PublicID: publicID,
+	})
+
+	return err
+}
+
+// Extract PublicID from Cloudinary URL
+func CloudinaryPublicIDFromURL(imageURL string) string {
+	if imageURL == "" {
+		return ""
+	}
+
+	parts := strings.Split(imageURL, "/")
+	idx := -1
+	for i, p := range parts {
+		if p == "upload" {
+			idx = i
+			break
+		}
+	}
+	if idx == -1 || idx+2 >= len(parts) {
+		return ""
+	}
+
+	pathParts := parts[idx+2:] // skip "upload" + version
+	path := strings.Join(pathParts, "/")
+	return strings.TrimSuffix(path, filepath.Ext(path))
 }

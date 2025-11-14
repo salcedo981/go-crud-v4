@@ -2,6 +2,7 @@ package ctrFeatureOne
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"net/smtp"
 	"strings"
@@ -153,6 +154,7 @@ func Login(c fiber.Ctx) error {
 
 // Logout handles user logout (JWT is stateless, so this is optional)
 func Logout(c fiber.Ctx) error {
+	log.Printf("Logout hit")
 	return v1.JSONResponseWithData(c, respcode.SUC_CODE_200,
 		"Logout successful", nil, http.StatusOK)
 }
